@@ -1,0 +1,1017 @@
+  <!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Career Portal — ระบบใช้งานจริง (HTML Demo)</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--muted:#6b7280;--primary:#0b5cff;--success:#16a34a;--danger:#ef4444}
+body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:#0f172a}
+.wrap{max-width:1100px;margin:20px auto;padding:18px}
+.header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.title{font-size:20px;font-weight:600}
+.small{font-size:13px;color:var(--muted)}
+.card{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(12,20,40,0.06);padding:16px;margin-top:14px}
+.grid{display:grid;grid-template-columns:1fr 340px;gap:14px}
+.form-row{display:flex;gap:8px;margin-bottom:10px}
+input,select,textarea{width:100%;padding:8px;border:1px solid #e6e9ef;border-radius:8px}
+button{padding:8px 12px;border-radius:8px;border:0;background:var(--primary);color:white;cursor:pointer}
+button.ghost{background:transparent;color:var(--primary);border:1px solid rgba(11,92,255,0.12)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.nav-btn{padding:8px 10px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--primary);cursor:pointer}
+.nav-btn.active{background:#eef2ff;border-color:rgba(11,92,255,0.08)}
+.workshop{border:1px solid #eef2ff;padding:12px;border-radius:10px;margin-bottom:10px;background:linear-gradient(180deg,#fff,#fbfdff)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border:1px solid #e6e9ef;padding:8px;text-align:left}
+.pill{background:#eef2ff;padding:6px 10px;border-radius:999px;font-size:13px;color:var(--primary)}
+.muted{color:var(--muted)}
+.hidden{display:none}
+.footer{margin-top:18px;font-size:13px;color:var(--muted);text-align:center}
+.alert{padding:10px;border-radius:8px;margin-bottom:10px}
+.alert.info{background:#eaf0ff;color:#08307a}
+.alert.success{background:#e9f8ef;color:#145c2f}
+.alert.warn{background:#fff4e5;color:#7a4a00}
+.company-card{border:1px solid #eef2ff;padding:12px;border-radius:10px;margin-bottom:10px}
+.applicant-row{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f0f2f6}
+@media(max-width:900px){.grid{grid-template-columns:1fr;}}
+.file-preview{max-width:100%;border:1px dashed #e6e9ef;padding:8px;border-radius:8px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <div class="title">Job ECT — ระบบรับสมัคร (Demo)</div>
+      <div class="small muted">บริษัทเพิ่มประกาศ &gt; นักศึกษาเลือกสมัคร</div>
+    </div>
+    <div id="sessionBox" class="small"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card" id="mainArea">
+      <!-- dynamic content -->
+    </div>
+
+    <div class="card">
+      <div id="authBox">
+        <h3 id="authTitle">ล็อกอิน / ลงทะเบียน</h3>
+        <div id="authForm">
+          <div class="form-row"><input id="inputEmail" placeholder="อีเมล (ex: student@uni.edu)"></div>
+          <div class="form-row"><input id="inputPW" type="password" placeholder="รหัสผ่าน"></div>
+          <div class="form-row">
+            <select id="selectRole">
+              <option value="student">นักศึกษา</option>
+              <option value="company">บริษัท</option>
+              <option value="admin">Admin</option>
+            </select>
+            <button id="btnRegister">ลงทะเบียน</button>
+          </div>
+          <div class="form-row">
+            <button id="btnLogin">ล็อกอิน</button>
+            <button id="btnGuest" class="ghost">เข้าสู่ระบบทดลอง (Guest)</button>
+          </div>
+          <div class="small muted">หมายเหตุ: ระบบนี้เป็น demo บันทึกข้อมูลในเบราว์เซอร์เท่านั้น</div>
+        </div>
+
+        <div id="sessionInfo" class="hidden">
+          <div class="small">เข้าสู่ระบบโดย <b id="whoRole"></b></div>
+          <div style="margin-top:8px" class="actions">
+            <button id="btnHome" class="nav-btn">หน้าหลัก</button>
+            <button id="btnProfile" class="nav-btn">โปรไฟล์</button>
+            <button id="btnMyPostings" class="nav-btn">ประกาศของฉัน</button>
+            <button id="btnLogout" class="nav-btn">ออกจากระบบ</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:12px 0">
+
+      <div id="quickHelp">
+        <h4>เมนูด่วน</h4>
+        <nav class="nav">
+          <button class="nav-btn" id="navOpenings">ประกาศรับสมัคร (สำหรับนักศึกษา)</button>
+          <button class="nav-btn" id="navCreate">สร้างประกาศ (สำหรับบริษัท)</button>
+          <button class="nav-btn" id="navApplicants">รายชื่อผู้สมัคร (บริษัท)</button>
+          <button class="nav-btn" id="navPortfolio">แฟ้มสะสมผลงาน</button>
+          <button class="nav-btn" id="navAdmin">Admin Panel</button>
+        </nav>
+        <div style="margin-top:10px" class="small muted">เมนูกดได้เสมอ แต่ระบบจะตรวจสิทธิ์ก่อนทำงาน</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="statsArea" class="card small"></div>
+
+</div>
+
+<script>
+/* -----------------------
+  Client-side DB in localStorage
+  key: cp_demo_db_html_v2
+-------------------------*/
+const DBKEY = 'cp_demo_db_html_v2';
+
+function dbLoad(){
+  const raw = localStorage.getItem(DBKEY);
+  if(!raw){
+    const seed = {
+      users: [], // {id,email,password,role,approved (company)}
+      students: [], // {id,userId,personal:{...},portfolio: [{name,dataUrl}]}
+      companies: [], // {id,userId,companyName,contactPerson,phone,approved,postings: [postingId,...]}
+      postings: [], // {id,companyId,title,description,location,startDate,endDate,capacity,status,applicants:[applicationId,...]}
+      applications: [] // {id,postingId,studentId,status,appliedAt,answers:{...},portfolio: [{name,dataUrl}]}
+    };
+    localStorage.setItem(DBKEY, JSON.stringify(seed));
+    return seed;
+  }
+  try { return JSON.parse(raw); } catch(e){ localStorage.removeItem(DBKEY); return dbLoad(); }
+}
+function dbSave(db){ localStorage.setItem(DBKEY, JSON.stringify(db)); }
+let db = dbLoad();
+
+/* id generator */
+function newid(coll){ return (coll && coll.length)? Math.max(...coll.map(x=>x.id))+1 : 1; }
+
+/* session */
+let session = JSON.parse(localStorage.getItem('cp_demo_session') || 'null');
+
+/* UI elements */
+const mainArea = document.getElementById('mainArea');
+const statsArea = document.getElementById('statsArea');
+const sessionBox = document.getElementById('sessionBox');
+
+const inputEmail = document.getElementById('inputEmail');
+const inputPW = document.getElementById('inputPW');
+const selectRole = document.getElementById('selectRole');
+const btnRegister = document.getElementById('btnRegister');
+const btnLogin = document.getElementById('btnLogin');
+const btnGuest = document.getElementById('btnGuest');
+const authForm = document.getElementById('authForm');
+const sessionInfo = document.getElementById('sessionInfo');
+const whoRole = document.getElementById('whoRole');
+const btnLogout = document.getElementById('btnLogout');
+const btnProfile = document.getElementById('btnProfile');
+const btnHome = document.getElementById('btnHome');
+const btnMyPostings = document.getElementById('btnMyPostings');
+
+/* navs */
+document.getElementById('navOpenings').onclick = ()=>renderOpenings();
+document.getElementById('navCreate').onclick = ()=>renderCreatePosting();
+document.getElementById('navApplicants').onclick = ()=>renderApplicants();
+document.getElementById('navPortfolio').onclick = ()=>renderPortfolio();
+document.getElementById('navAdmin').onclick = ()=>renderAdminPanel();
+
+/* helpers */
+function findUserByEmail(email){ return db.users.find(u=>u.email===email); }
+function currentUser(){ return session ? db.users.find(u=>u.id===session.userId) : null; }
+function currentStudent(){ const u=currentUser(); return u && u.role==='student' ? db.students.find(s=>s.userId===u.id) : null; }
+function currentCompany(){ const u=currentUser(); return u && u.role==='company' ? db.companies.find(c=>c.userId===u.id) : null; }
+
+/* ======= Auth handlers ======= */
+btnRegister.onclick = ()=>{
+  const email = inputEmail.value.trim();
+  const pw = inputPW.value.trim();
+  const role = selectRole.value;
+  if(!email || !pw) return alert('กรอกอีเมลและรหัสผ่าน');
+  if(db.users.find(u=>u.email===email)) return alert('อีเมลนี้มีแล้ว');
+  const uid = newid(db.users);
+  const user = {id:uid,email,password:pw,role,approved: role==='company' ? false : true};
+  db.users.push(user);
+  if(role==='student'){
+    const sid = newid(db.students);
+    db.students.push({id:sid,userId:uid,personal:{firstName:'',lastName:'',dob:'',age:'',gender:'',nationality:'',address:{} ,phone:'',email:''},portfolio:[]});
+    user.profileId = sid;
+    dbSave(db);
+    alert('สมัครนักศึกษาเรียบร้อย (โปรดกรอกโปรไฟล์)');
+    renderApp();
+  } else if(role==='company'){
+    const cid = newid(db.companies);
+    db.companies.push({id:cid,userId:uid,companyName:'',contactPerson:'',phone:'',approved:false,postings:[]});
+    user.profileId = cid;
+    dbSave(db);
+    alert('สมัครบริษัทเรียบร้อย รอแอดมินอนุมัติ (กรอกโปรไฟล์แล้วกดบันทึกเพื่อส่งให้แอดมิน)');
+    renderApp();
+  } else {
+    dbSave(db);
+    alert('Admin สร้างบัญชีเรียบร้อย');
+    renderApp();
+  }
+};
+
+btnLogin.onclick = ()=>{
+  const email = inputEmail.value.trim();
+  const pw = inputPW.value.trim();
+  const user = db.users.find(u=>u.email===email && u.password===pw);
+  if(!user) return alert('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+  session = {userId:user.id, role:user.role};
+  localStorage.setItem('cp_demo_session', JSON.stringify(session));
+  renderApp();
+};
+
+btnGuest.onclick = ()=>{
+  // seed sample if empty
+  if(db.users.length===0){
+    const adminId = newid(db.users);
+    db.users.push({id:adminId,email:'admin@demo',password:'admin',role:'admin',approved:true});
+    const cu = newid(db.users);
+    db.users.push({id:cu,email:'company@demo',password:'company',role:'company',approved:true});
+    const cid = newid(db.companies);
+    db.companies.push({id:cid,userId:cu,companyName:'Acme Co.',contactPerson:'Somchai',phone:'0812345678',approved:true,postings:[]});
+    db.users.find(u=>u.id===cu).profileId = cid;
+    const su = newid(db.users);
+    db.users.push({id:su,email:'student@demo',password:'student',role:'student',approved:true});
+    const sid = newid(db.students);
+    db.students.push({id:sid,userId:su,personal:{firstName:'Naru',lastName:'Student',dob:'2001-01-01',age:'24',gender:'หญิง',nationality:'ไทย',address:{house:'1',building:'',soi:'',road:'',moo:'',subdistrict:'',district:'',province:'กรุงเทพมหานคร',postcode:'10200'},phone:'0890000000',email:'student@demo'},portfolio:[]});
+    db.users.find(u=>u.id===su).profileId = sid;
+
+    // sample posting
+    const pid = newid(db.postings);
+    db.postings.push({id:pid,companyId:cid,title:'นักศึกษาฝึกงานด้าน Web Dev',description:'งานฝึกงานพัฒนาเว็บไซต์',location:'กรุงเทพฯ',startDate:'2025-06-01',endDate:'2025-07-31',capacity:5,status:'open',applicants:[]});
+    db.companies.find(c=>c.id===cid).postings.push(pid);
+
+    dbSave(db);
+  }
+  // auto login as student demo
+  const demoStudent = db.users.find(u=>u.email==='student@demo') || db.users.find(u=>u.role==='student');
+  session = {userId: demoStudent.id, role: demoStudent.role};
+  localStorage.setItem('cp_demo_session', JSON.stringify(session));
+  renderApp();
+};
+
+btnLogout.onclick = ()=>{
+  session = null;
+  localStorage.removeItem('cp_demo_session');
+  renderApp();
+};
+
+btnHome.onclick = ()=>renderOpenings();
+btnProfile.onclick = ()=>renderProfile();
+btnMyPostings.onclick = ()=>renderCompanyPostings();
+
+/* ======= Render app ======= */
+function renderApp(){
+  db = dbLoad();
+  updateSessionUI();
+  renderOpenings();
+  updateStats();
+}
+
+/* update session area */
+function updateSessionUI(){
+  const u = currentUser();
+  if(u){
+    authForm.classList.add('hidden');
+    sessionInfo.classList.remove('hidden');
+    whoRole.textContent = u.email + ' (' + u.role + ')';
+    sessionBox.textContent = 'ยินดีต้อนรับ — ' + u.email + ' [' + u.role + ']';
+  } else {
+    authForm.classList.remove('hidden');
+    sessionInfo.classList.add('hidden');
+    whoRole.textContent = '';
+    sessionBox.textContent = '';
+  }
+}
+
+/* stats */
+function updateStats(){
+  const totalCompanies = db.companies.length;
+  const totalStudents = db.students.length;
+  const totalPostings = db.postings.length;
+  statsArea.innerHTML = `<div>สถิติ: บริษัท ${totalCompanies} | นักศึกษา ${totalStudents} | ประกาศ ${totalPostings}</div>`;
+}
+
+/* ======= Openings (for students) ======= */
+function renderOpenings(){
+  const u = currentUser();
+  let html = '<h3>ประกาศรับสมัครจากบริษัท</h3>';
+  if(db.postings.length===0) html += '<div class="alert info">ยังไม่มีประกาศรับสมัคร</div>';
+  db.postings.forEach(p=>{
+    const comp = db.companies.find(c=>c.id===p.companyId) || {companyName:'(ไม่ระบุ)'};
+    const open = `<div class="company-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600">${p.title}</div>
+          <div class="small muted">${comp.companyName} — ${p.location}</div>
+        </div>
+        <div class="pill">${p.status}</div>
+      </div>
+      <div style="margin-top:8px">${p.description ? escapeHtml(p.description) : '<span class="muted">ไม่มีคำอธิบาย</span>'}</div>
+      <div style="margin-top:8px" class="small muted">รับสมัคร: ${p.startDate} ถึง ${p.endDate} | ที่นั่ง: ${p.capacity} | ผู้สมัคร: ${p.applicants.length}</div>
+      <div style="margin-top:8px" class="actions">`;
+    html += open;
+    if(u && u.role==='student'){
+      html += `<button onclick="applyToPosting(${p.id})">กดสมัคร</button>`;
+    } else {
+      html += `<button class="ghost" onclick="requireLogin()">กดสมัคร</button>`;
+    }
+    html += ` <button class="ghost" onclick="viewPosting(${p.id})">ดูรายละเอียด</button>`;
+    html += `</div></div>`;
+  });
+  mainArea.innerHTML = html;
+}
+
+/* view posting detail */
+function viewPosting(id){
+  const p = db.postings.find(x=>x.id===id);
+  if(!p) return alert('ไม่พบประกาศ');
+  const comp = db.companies.find(c=>c.id===p.companyId) || {};
+  let html = `<h3>รายละเอียดประกาศ</h3>
+    <div class="company-card">
+      <div style="font-weight:600">${p.title}</div>
+      <div class="small muted">${comp.companyName} — ${p.location}</div>
+      <div style="margin-top:8px">${escapeHtml(p.description)}</div>
+      <div style="margin-top:8px" class="small muted">รับสมัคร: ${p.startDate} ถึง ${p.endDate} | ที่นั่ง: ${p.capacity} | ผู้สมัคร: ${p.applicants.length}</div>
+    </div>
+    <div class="actions">`;
+  const u = currentUser();
+  if(u && u.role==='student'){
+    html += `<button onclick="applyToPosting(${p.id})">กดสมัคร</button>`;
+  } else {
+    html += `<button class="ghost" onclick="requireLogin()">กดสมัคร</button>`;
+  }
+  html += ` <button class="ghost" onclick="renderOpenings()">กลับ</button></div>`;
+  mainArea.innerHTML = html;
+}
+
+/* apply to posting (student) */
+function applyToPosting(postingId){
+  const u = currentUser();
+  if(!u || u.role!=='student') return requireLogin();
+  const student = currentStudent();
+  if(!student) return alert('กรอกโปรไฟล์ก่อนสมัคร (ไปที่โปรไฟล์)');
+  const p = db.postings.find(x=>x.id===postingId);
+  if(!p) return alert('ประกาศไม่พบ');
+  // check dates & capacity & already applied
+  const todayStr = new Date().toISOString().slice(0,10);
+  if(p.endDate < todayStr) return alert('หมดเขตรับสมัครแล้ว');
+  if(p.applicants.length >= p.capacity) return alert('ที่นั่งเต็มแล้ว');
+  if(p.applicants.some(aid=> db.applications.find(ap=>ap.id===aid && ap.studentId===student.id))) {
+    return alert('คุณได้สมัครประกาศนี้ไปแล้ว');
+  }
+
+  // render application form
+  let html = `<h3>สมัคร: ${escapeHtml(p.title)}</h3>
+  <div class="card">
+    <div class="small muted">กรอกข้อมูลสำหรับสมัครต่อบริษัท — Portfolio (ไฟล์) และข้อมูลส่วนตัว</div>
+    <div style="margin-top:10px">
+      <label>อัปโหลด Portfolio (ไฟล์หลายไฟล์ได้)</label>
+      <input type="file" id="inputPortfolioFiles" multiple>
+      <div id="portfolioPreview" class="file-preview muted">ยังไม่มีไฟล์</div>
+    </div>
+
+    <hr style="margin:12px 0">
+
+    <h4>ข้อมูลส่วนตัว (สำหรับส่งให้บริษัท)</h4>
+    <div class="form-row"><input id="ap_firstName" placeholder="ชื่อ" value="${escapeHtml(student.personal.firstName || '')}"></div>
+    <div class="form-row"><input id="ap_lastName" placeholder="นามสกุล" value="${escapeHtml(student.personal.lastName || '')}"></div>
+    <div class="form-row"><input id="ap_dob" placeholder="วันเดือนปีเกิด (YYYY-MM-DD)" value="${escapeHtml(student.personal.dob || '')}"></div>
+    <div class="form-row"><input id="ap_age" placeholder="อายุ" value="${escapeHtml(student.personal.age || '')}"></div>
+    <div class="form-row"><input id="ap_gender" placeholder="เพศ" value="${escapeHtml(student.personal.gender || '')}"></div>
+    <div class="form-row"><input id="ap_nationality" placeholder="สัญชาติ" value="${escapeHtml(student.personal.nationality || '')}"></div>
+
+    <h5>ที่อยู่ปัจจุบัน</h5>
+    <div class="form-row"><input id="ad_house" placeholder="บ้านเลขที่" value="${escapeHtml((student.personal.address && student.personal.address.house) || '')}"></div>
+    <div class="form-row"><input id="ad_building" placeholder="หมู่บ้าน / อาคาร / คอนโด / หอพัก (ถ้ามี)" value="${escapeHtml((student.personal.address && student.personal.address.building) || '')}"></div>
+    <div class="form-row"><input id="ad_soi" placeholder="ซอย (ถ้ามี)" value="${escapeHtml((student.personal.address && student.personal.address.soi) || '')}"></div>
+    <div class="form-row"><input id="ad_road" placeholder="ถนน" value="${escapeHtml((student.personal.address && student.personal.address.road) || '')}"></div>
+    <div class="form-row"><input id="ad_moo" placeholder="หมู่ที่" value="${escapeHtml((student.personal.address && student.personal.address.moo) || '')}"></div>
+    <div class="form-row"><input id="ad_subdistrict" placeholder="ตำบล / แขวง" value="${escapeHtml((student.personal.address && student.personal.address.subdistrict) || '')}"></div>
+    <div class="form-row"><input id="ad_district" placeholder="อำเภอ / เขต" value="${escapeHtml((student.personal.address && student.personal.address.district) || '')}"></div>
+    <div class="form-row"><input id="ad_province" placeholder="จังหวัด" value="${escapeHtml((student.personal.address && student.personal.address.province) || '')}"></div>
+    <div class="form-row"><input id="ad_postcode" placeholder="รหัสไปรษณีย์" value="${escapeHtml((student.personal.address && student.personal.address.postcode) || '')}"></div>
+
+    <div class="form-row"><input id="ap_phone" placeholder="เบอร์โทรศัพท์" value="${escapeHtml(student.personal.phone || '')}"></div>
+    <div class="form-row"><input id="ap_email" placeholder="อีเมลจริง" value="${escapeHtml(student.personal.email || '')}"></div>
+
+    <div style="margin-top:12px" class="actions">
+      <button id="btnSubmitApplication">ส่งใบสมัคร (กดสมัคร)</button>
+      <button class="ghost" onclick="renderOpenings()">ยกเลิก</button>
+    </div>
+  </div>`;
+
+  mainArea.innerHTML = html;
+
+  // preview & file handling
+  const inputFiles = document.getElementById('inputPortfolioFiles');
+  const previewBox = document.getElementById('portfolioPreview');
+  let selectedFiles = [];
+  inputFiles.onchange = async (e)=>{
+    selectedFiles = [];
+    const files = Array.from(e.target.files || []);
+    if(files.length===0){ previewBox.innerHTML = 'ยังไม่มีไฟล์'; return; }
+    previewBox.innerHTML = '';
+    for(const f of files){
+      const dataUrl = await fileToDataUrl(f);
+      selectedFiles.push({name:f.name,dataUrl});
+      const div = document.createElement('div');
+      div.innerHTML = `<div style="margin-bottom:6px"><b>${escapeHtml(f.name)}</b> <span class="small muted">(${Math.round(f.size/1024)} KB)</span></div>`;
+      previewBox.appendChild(div);
+    }
+  };
+
+  document.getElementById('btnSubmitApplication').onclick = async ()=>{
+    // collect answers
+    const ans = {
+      firstName: document.getElementById('ap_firstName').value.trim(),
+      lastName: document.getElementById('ap_lastName').value.trim(),
+      dob: document.getElementById('ap_dob').value.trim(),
+      age: document.getElementById('ap_age').value.trim(),
+      gender: document.getElementById('ap_gender').value.trim(),
+      nationality: document.getElementById('ap_nationality').value.trim(),
+      address: {
+        house: document.getElementById('ad_house').value.trim(),
+        building: document.getElementById('ad_building').value.trim(),
+        soi: document.getElementById('ad_soi').value.trim(),
+        road: document.getElementById('ad_road').value.trim(),
+        moo: document.getElementById('ad_moo').value.trim(),
+        subdistrict: document.getElementById('ad_subdistrict').value.trim(),
+        district: document.getElementById('ad_district').value.trim(),
+        province: document.getElementById('ad_province').value.trim(),
+        postcode: document.getElementById('ad_postcode').value.trim()
+      },
+      phone: document.getElementById('ap_phone').value.trim(),
+      email: document.getElementById('ap_email').value.trim()
+    };
+
+    // update student personal (save)
+    student.personal = Object.assign(student.personal || {}, {
+      firstName: ans.firstName,
+      lastName: ans.lastName,
+      dob: ans.dob,
+      age: ans.age,
+      gender: ans.gender,
+      nationality: ans.nationality,
+      address: ans.address,
+      phone: ans.phone,
+      email: ans.email
+    });
+
+    // create application entry
+    const aid = newid(db.applications);
+    const app = {id:aid,postingId:postingId,studentId:student.id,status:'applied',appliedAt:new Date().toISOString(),answers:ans,portfolio:selectedFiles};
+    db.applications.push(app);
+    // push to posting
+    p.applicants.push(aid);
+    dbSave(db);
+    alert('ส่งใบสมัครเรียบร้อย');
+    renderOpenings();
+  };
+}
+
+/* helper: convert file to dataUrl */
+function fileToDataUrl(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = ()=>rej('fail');
+    r.readAsDataURL(file);
+  });
+}
+
+/* ======= Company: Create posting & My postings ======= */
+function renderCreatePosting(){
+  const u = currentUser();
+  if(!u || u.role!=='company') return requireLogin('ต้องล็อกอินด้วยบัญชีบริษัทเพื่อสร้างประกาศ');
+  const comp = currentCompany();
+  if(!comp || !comp.approved) return alert('บัญชีบริษัทยังไม่ได้รับการอนุมัติจากแอดมิน');
+  let html = `<h3>สร้างประกาศรับสมัคร</h3>
+    <div class="card">
+      <div class="form-row"><input id="p_title" placeholder="หัวข้อประกาศ (เช่น นักศึกษาฝึกงานด้าน ... )"></div>
+      <div class="form-row"><textarea id="p_description" placeholder="รายละเอียดการรับสมัคร"></textarea></div>
+      <div class="form-row"><input id="p_location" placeholder="สถานที่ตั้งของบริษัท / ที่ปฏิบัติงาน"></div>
+      <div class="form-row"><input id="p_start" type="date" placeholder="วันเริ่มรับสมัคร"></div>
+      <div class="form-row"><input id="p_end" type="date" placeholder="วันปิดรับสมัคร"></div>
+      <div class="form-row"><input id="p_capacity" type="number" placeholder="จำนวนรับ (ตัวเลข)"></div>
+      <div class="actions"><button id="btnCreatePosting">บันทึกประกาศ</button> <button class="ghost" onclick="renderCompanyPostings()">ยกเลิก</button></div>
+    </div>`;
+  mainArea.innerHTML = html;
+
+  document.getElementById('btnCreatePosting').onclick = ()=>{
+    const title = document.getElementById('p_title').value.trim();
+    const desc = document.getElementById('p_description').value.trim();
+    const location = document.getElementById('p_location').value.trim();
+    const start = document.getElementById('p_start').value;
+    const end = document.getElementById('p_end').value;
+    const cap = parseInt(document.getElementById('p_capacity').value || '0');
+    if(!title || !location || !start || !end || !cap) return alert('กรอกข้อมูลให้ครบ');
+    const pid = newid(db.postings);
+    db.postings.push({id:pid,companyId:comp.id,title,description:desc,location,startDate:start,endDate:end,capacity:cap,status:'open',applicants:[]});
+    comp.postings.push(pid);
+    dbSave(db);
+    alert('บันทึกประกาศเรียบร้อย');
+    renderCompanyPostings();
+  };
+}
+
+function renderCompanyPostings(){
+  const u = currentUser();
+  if(!u || u.role!=='company') return requireLogin();
+  const comp = currentCompany();
+  if(!comp) return alert('ไม่พบข้อมูลบริษัท');
+  let html = `<h3>ประกาศของ ${escapeHtml(comp.companyName || u.email)}</h3>`;
+  if(comp.postings.length===0) html += '<div class="alert info">ยังไม่มีประกาศ</div>';
+  comp.postings.forEach(pid=>{
+    const p = db.postings.find(x=>x.id===pid);
+    if(!p) return;
+    html += `<div class="company-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600">${p.title}</div>
+          <div class="small muted">${p.location} — ${p.startDate} ถึง ${p.endDate}</div>
+        </div>
+        <div class="pill">${p.status}</div>
+      </div>
+      <div style="margin-top:8px">${escapeHtml(p.description)}</div>
+      <div style="margin-top:8px" class="small muted">ผู้สมัครทั้งหมด: ${p.applicants.length}</div>
+      <div style="margin-top:8px" class="actions">
+        <button onclick="viewApplicantsForPosting(${p.id})">ดูผู้สมัคร</button>
+        <button class="ghost" onclick="editPosting(${p.id})">แก้ไข</button>
+        <button class="ghost" onclick="closePosting(${p.id})">ปิดรับสมัคร</button>
+      </div>
+    </div>`;
+  });
+  mainArea.innerHTML = html;
+}
+
+function editPosting(id){
+  const p = db.postings.find(x=>x.id===id);
+  if(!p) return alert('ไม่พบประกาศ');
+  const comp = currentCompany();
+  if(!comp || p.companyId !== comp.id) return alert('สิทธิ์ไม่เพียงพอ');
+  let html = `<h3>แก้ไขประกาศ</h3>
+  <div class="card">
+    <div class="form-row"><input id="p_title_e" value="${escapeHtml(p.title)}"></div>
+    <div class="form-row"><textarea id="p_description_e">${escapeHtml(p.description)}</textarea></div>
+    <div class="form-row"><input id="p_location_e" value="${escapeHtml(p.location)}"></div>
+    <div class="form-row"><input id="p_start_e" type="date" value="${p.startDate}"></div>
+    <div class="form-row"><input id="p_end_e" type="date" value="${p.endDate}"></div>
+    <div class="form-row"><input id="p_capacity_e" type="number" value="${p.capacity}"></div>
+    <div class="actions"><button id="btnSaveEdit">บันทึก</button> <button class="ghost" onclick="renderCompanyPostings()">ยกเลิก</button></div>
+  </div>`;
+  mainArea.innerHTML = html;
+  document.getElementById('btnSaveEdit').onclick = ()=>{
+    p.title = document.getElementById('p_title_e').value.trim();
+    p.description = document.getElementById('p_description_e').value.trim();
+    p.location = document.getElementById('p_location_e').value.trim();
+    p.startDate = document.getElementById('p_start_e').value;
+    p.endDate = document.getElementById('p_end_e').value;
+    p.capacity = parseInt(document.getElementById('p_capacity_e').value || '0');
+    dbSave(db);
+    alert('บันทึกเรียบร้อย');
+    renderCompanyPostings();
+  };
+}
+
+function closePosting(id){
+  const p = db.postings.find(x=>x.id===id);
+  if(!p) return;
+  if(!confirm('ต้องการปิดรับสมัครประกาศนี้หรือไม่?')) return;
+  p.status = 'closed';
+  dbSave(db);
+  renderCompanyPostings();
+}
+
+/* view applicants for a posting (company) */
+function viewApplicantsForPosting(postingId){
+  const u = currentUser();
+  if(!u || u.role!=='company') return requireLogin();
+  const comp = currentCompany();
+  const p = db.postings.find(x=>x.id===postingId);
+  if(!p || p.companyId !== comp.id) return alert('ประกาศไม่พบหรือสิทธิ์ไม่เพียงพอ');
+  let html = `<h3>ผู้สมัคร: ${escapeHtml(p.title)}</h3>`;
+  if(p.applicants.length===0) html += '<div class="alert info">ยังไม่มีผู้สมัคร</div>';
+  p.applicants.forEach(aid=>{
+    const app = db.applications.find(ap=>ap.id===aid);
+    if(!app) return;
+    const stud = db.students.find(s=>s.id===app.studentId) || {};
+    const displayName = (app.answers && (app.answers.firstName || app.answers.lastName)) ? (escapeHtml((app.answers.firstName||'') + ' ' + (app.answers.lastName||''))) : '(ไม่ระบุ)';
+    html += `<div class="applicant-row">
+      <div>
+        <div style="font-weight:600">${displayName}</div>
+        <div class="small muted">สมัครเมื่อ: ${new Date(app.appliedAt).toLocaleString()}</div>
+      </div>
+      <div>
+        <button onclick="viewApplicantDetail(${app.id})">ดูข้อมูล</button>
+      </div>
+    </div>`;
+  });
+  html += `<div style="margin-top:10px"><button class="ghost" onclick="renderCompanyPostings()">กลับ</button></div>`;
+  mainArea.innerHTML = html;
+}
+
+/* view single applicant detail (company) */
+function viewApplicantDetail(applicationId){
+  const app = db.applications.find(a=>a.id===applicationId);
+  if(!app) return alert('ไม่พบข้อมูล');
+  const p = db.postings.find(x=>x.id===app.postingId);
+  const comp = currentCompany();
+  if(!comp || p.companyId !== comp.id) return alert('สิทธิ์ไม่เพียงพอ');
+  const student = db.students.find(s=>s.id===app.studentId);
+  const ans = app.answers || {};
+  let html = `<h3>ข้อมูลผู้สมัคร</h3>
+    <div class="card">
+      <div style="font-weight:600">${escapeHtml((ans.firstName||'') + ' ' + (ans.lastName||''))}</div>
+      <div class="small muted">อีเมล: ${escapeHtml(ans.email||'')} | โทร: ${escapeHtml(ans.phone||'')}</div>
+      <div style="margin-top:8px"><b>วันเกิด:</b> ${escapeHtml(ans.dob||'')} <b>อายุ:</b> ${escapeHtml(ans.age||'')} <b>เพศ:</b> ${escapeHtml(ans.gender||'')}</div>
+      <div style="margin-top:8px"><b>สัญชาติ:</b> ${escapeHtml(ans.nationality||'')}</div>
+      <div style="margin-top:8px"><b>ที่อยู่ปัจจุบัน:</b>
+        <div class="small muted">${escapeHtml((ans.address && (ans.address.house||'')) + ' ' + (ans.address && ans.address.building ? ', ' + ans.address.building : '') )}</div>
+        <div class="small muted">${escapeHtml((ans.address && ans.address.soi ? 'ซ.'+ans.address.soi+' ' : '') + (ans.address && ans.address.road ? 'ถ.'+ans.address.road : ''))}</div>
+        <div class="small muted">${escapeHtml((ans.address && ans.address.subdistrict ? ans.address.subdistrict + ' ' : '') + (ans.address && ans.address.district ? ans.address.district + ' ' : '') + (ans.address && ans.address.province ? ans.address.province : ''))}</div>
+        <div class="small muted">${escapeHtml(ans.address && ans.address.postcode ? 'รหัสไปรษณีย์ ' + ans.address.postcode : '')}</div>
+      </div>
+      <div style="margin-top:12px"><b>Portfolio:</b></div>
+      <div id="appPortfolio" class="file-preview muted"></div>
+      <div style="margin-top:12px" class="actions">
+        <button onclick="markSelected(${applicationId})">เลือก (Mark)</button>
+        <button class="ghost" onclick="viewApplicantsForPosting(${app.postingId})">กลับ</button>
+      </div>
+    </div>`;
+  mainArea.innerHTML = html;
+
+  const area = document.getElementById('appPortfolio');
+  if(app.portfolio && app.portfolio.length>0){
+    area.innerHTML = '';
+    app.portfolio.forEach(f=>{
+      const link = document.createElement('div');
+      const isImage = f.dataUrl.startsWith('data:image');
+      if(isImage){
+        link.innerHTML = `<div style="margin-bottom:8px"><b>${escapeHtml(f.name)}</b><br><img src="${f.dataUrl}" style="max-width:200px;border:1px solid #eee;padding:6px;border-radius:6px"></div>`;
+      } else {
+        link.innerHTML = `<div style="margin-bottom:8px"><b>${escapeHtml(f.name)}</b> — <a href="${f.dataUrl}" download="${escapeHtml(f.name)}">ดาวน์โหลด</a></div>`;
+      }
+      area.appendChild(link);
+    });
+  } else {
+    area.innerHTML = '<div class="small muted">ไม่มีไฟล์แนบ</div>';
+  }
+}
+
+function markSelected(applicationId){
+  const app = db.applications.find(a=>a.id===applicationId);
+  if(!app) return;
+  app.status = 'selected';
+  dbSave(db);
+  alert('ทำเครื่องหมายว่า "Selected" เรียบร้อย');
+  viewApplicantsForPosting(app.postingId);
+}
+
+/* ======= Admin Panel ======= */
+function renderAdminPanel(){
+  const u = currentUser();
+  if(!u || u.role!=='admin') return requireLogin('ต้องล็อกอินด้วยแอดมิน');
+  let html = `<h3>Admin Panel — อนุมัติบัญชี</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="flex:1">
+        <h4>บริษัท (รออนุมัติ)</h4>
+        <div class="card">`;
+  const pendingCompanies = db.companies.filter(c=>!c.approved);
+  if(pendingCompanies.length===0) html += '<div class="small muted">ไม่มีบริษัทรออนุมัติ</div>';
+  pendingCompanies.forEach(c=>{
+    const uObj = db.users.find(uu=>uu.id===c.userId);
+    html += `<div style="margin-bottom:8px;padding:8px;border-bottom:1px solid #f0f2f6">
+      <div style="font-weight:600">${escapeHtml(c.companyName || uObj.email)}</div>
+      <div class="small muted">${escapeHtml(c.contactPerson || '')} | ${escapeHtml(c.phone || '')}</div>
+      <div style="margin-top:6px"><button onclick="adminApproveCompany(${c.id})">อนุมัติ</button></div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div style="flex:1">
+    <h4>นักศึกษา (รออนุมัติ)</h4>
+    <div class="card">`;
+  const pendingStudents = db.students.filter(s=>{
+    const uobj = db.users.find(uu=>uu.id===s.userId);
+    return uobj && !uobj.approved;
+  });
+  if(pendingStudents.length===0) html += '<div class="small muted">ไม่มีนักศึกษารออนุมัติ</div>';
+  pendingStudents.forEach(s=>{
+    const uobj = db.users.find(uu=>uu.id===s.userId);
+    html += `<div style="margin-bottom:8px;padding:8px;border-bottom:1px solid #f0f2f6">
+      <div style="font-weight:600">${escapeHtml((s.personal && (s.personal.firstName||s.personal.lastName)) ? (s.personal.firstName + ' ' + s.personal.lastName) : uobj.email)}</div>
+      <div class="small muted">${escapeHtml(uobj.email)}</div>
+      <div style="margin-top:6px"><button onclick="adminApproveStudent(${s.id})">อนุมัติ</button></div>
+    </div>`;
+  });
+  html += `</div></div></div>
+    <div style="margin-top:12px"><button class="ghost" onclick="renderOpenings()">กลับ</button></div>`;
+  mainArea.innerHTML = html;
+}
+
+function adminApproveCompany(companyId){
+  const c = db.companies.find(x=>x.id===companyId);
+  if(!c) return alert('ไม่พบบริษัท');
+  c.approved = true;
+  const u = db.users.find(uu=>uu.id===c.userId);
+  if(u) u.approved = true;
+  dbSave(db);
+  alert('อนุมัติเรียบร้อย');
+  renderAdminPanel();
+
+}
+function adminApproveStudent(studentId){
+  const s = db.students.find(x=>x.id===studentId);
+  if(!s) return alert('ไม่พบข้อมูลนักศึกษา');
+  const u = db.users.find(uu=>uu.id===s.userId);
+  if(u) u.approved = true;
+  dbSave(db);
+  alert('อนุมัติเรียบร้อย');
+  renderAdminPanel();
+
+}
+/* =======================
+   Admin Panel
+=========================*/
+function renderAdminPanel(){
+  const u = currentUser();
+  if(!u || u.role !== 'admin'){
+    mainArea.innerHTML = `<div class="alert warn">ต้องเป็น Admin เท่านั้น</div>`;
+    return;
+  }
+
+  mainArea.innerHTML = `
+    <h2>Admin Panel</h2>
+
+    <div style="margin-top:10px;">
+      <button id="btnApproveCompanies" class="nav-btn">อนุมัติบริษัท</button>
+      <button id="btnViewStats" class="nav-btn">สถิติระบบ</button>
+      <button id="btnWipeDB" class="nav-btn" style="background:#ef4444;color:white;">
+        ⚠️ ล้างฐานข้อมูลทั้งหมด
+      </button>
+    </div>
+
+    <div id="adminContent" style="margin-top:14px;"></div>
+  `;
+
+  /* ปุ่ม — อนุมัติบริษัท */
+  document.getElementById('btnApproveCompanies').onclick = ()=>{
+    const pending = db.companies.filter(c=>!c.approved);
+    if(pending.length === 0){
+      document.getElementById('adminContent').innerHTML =
+        `<div class="alert info">ไม่มีบริษัทที่รออนุมัติ</div>`;
+      return;
+    }
+
+    let html = `<h3>บริษัทที่รออนุมัติ</h3>`;
+    pending.forEach(c=>{
+      const user = db.users.find(u=>u.id === c.userId);
+      html += `
+        <div class="company-card">
+          <b>${c.companyName || '(ยังไม่ได้กรอกชื่อบริษัท)'}</b><br>
+          อีเมล: ${user.email}<br>
+          <button onclick="approveCompany(${c.id})">อนุมัติ</button>
+        </div>`;
+    });
+    document.getElementById('adminContent').innerHTML = html;
+  };
+
+  /* ปุ่ม — สถิติ */
+  document.getElementById('btnViewStats').onclick = ()=>{
+    document.getElementById('adminContent').innerHTML = `
+      <h3>สถิติโดยรวม</h3>
+      <p>ผู้ใช้งานทั้งหมด: ${db.users.length}</p>
+      <p>นักศึกษา: ${db.students.length}</p>
+      <p>บริษัท: ${db.companies.length}</p>
+      <p>ประกาศงาน: ${db.postings.length}</p>
+      <p>การสมัครงาน: ${db.applications.length}</p>
+    `;
+  };
+
+  /* ปุ่ม — ล้างฐานข้อมูล */
+  document.getElementById('btnWipeDB').onclick = ()=>{
+    if(confirm("⚠️ ยืนยันล้างฐานข้อมูลทั้งหมด? (ทุกอย่างหายหมด!)")){
+      localStorage.removeItem(DBKEY);
+      localStorage.removeItem('cp_demo_session');
+      location.reload();
+    }
+  };
+}
+
+/* =======================
+   ฟังก์ชันอนุมัติบริษัท
+=========================*/
+function approveCompany(cid){
+  const c = db.companies.find(x => x.id === cid);
+  if(!c) return;
+  c.approved = true;
+  dbSave(db);
+  alert('อนุมัติบริษัทเรียบร้อย');
+  renderAdminPanel();
+}
+/* ======= Profile (student/company edit) ======= */
+function renderProfile(){
+  const u = currentUser();
+  if(!u) return requireLogin();
+  if(u.role==='student'){
+    const s = currentStudent();
+    if(!s) return alert('ไม่พบโปรไฟล์นักศึกษา');
+    let html = `<h3>โปรไฟล์นักศึกษา</h3>
+      <div class="card">
+        <div class="form-row"><input id="pf_firstName" placeholder="ชื่อ" value="${escapeHtml(s.personal.firstName||'')}"></div>
+        <div class="form-row"><input id="pf_lastName" placeholder="นามสกุล" value="${escapeHtml(s.personal.lastName||'')}"></div>
+        <div class="form-row"><input id="pf_dob" placeholder="วันเกิด (YYYY-MM-DD)" value="${escapeHtml(s.personal.dob||'')}"></div>
+        <div class="form-row"><input id="pf_age" placeholder="อายุ" value="${escapeHtml(s.personal.age||'')}"></div>
+        <div class="form-row"><input id="pf_gender" placeholder="เพศ" value="${escapeHtml(s.personal.gender||'')}"></div>
+        <div class="form-row"><input id="pf_nationality" placeholder="สัญชาติ" value="${escapeHtml(s.personal.nationality||'')}"></div>
+
+        <h5>ที่อยู่</h5>
+        <div class="form-row"><input id="pf_house" placeholder="บ้านเลขที่" value="${escapeHtml((s.personal.address && s.personal.address.house)||'')}"></div>
+        <div class="form-row"><input id="pf_building" placeholder="หมู่บ้าน/อาคาร" value="${escapeHtml((s.personal.address && s.personal.address.building)||'')}"></div>
+        <div class="form-row"><input id="pf_soi" placeholder="ซอย" value="${escapeHtml((s.personal.address && s.personal.address.soi)||'')}"></div>
+        <div class="form-row"><input id="pf_road" placeholder="ถนน" value="${escapeHtml((s.personal.address && s.personal.address.road)||'')}"></div>
+        <div class="form-row"><input id="pf_moo" placeholder="หมู่ที่" value="${escapeHtml((s.personal.address && s.personal.address.moo)||'')}"></div>
+        <div class="form-row"><input id="pf_subdistrict" placeholder="ตำบล/แขวง" value="${escapeHtml((s.personal.address && s.personal.address.subdistrict)||'')}"></div>
+        <div class="form-row"><input id="pf_district" placeholder="อำเภอ/เขต" value="${escapeHtml((s.personal.address && s.personal.address.district)||'')}"></div>
+        <div class="form-row"><input id="pf_province" placeholder="จังหวัด" value="${escapeHtml((s.personal.address && s.personal.address.province)||'')}"></div>
+        <div class="form-row"><input id="pf_postcode" placeholder="รหัสไปรษณีย์" value="${escapeHtml((s.personal.address && s.personal.address.postcode)||'')}"></div>
+
+        <div class="form-row"><input id="pf_phone" placeholder="เบอร์โทรศัพท์" value="${escapeHtml(s.personal.phone||'')}"></div>
+        <div class="form-row"><input id="pf_email" placeholder="อีเมลจริง" value="${escapeHtml(s.personal.email||'')}"></div>
+
+        <div style="margin-top:10px">
+          <label>อัปโหลด Portfolio (เก็บไว้ในโปรไฟล์)</label>
+          <input type="file" id="pf_files" multiple>
+          <div id="pf_preview" class="file-preview muted">${s.portfolio && s.portfolio.length>0 ? '' : 'ยังไม่มีไฟล์'}</div>
+        </div>
+
+        <div style="margin-top:12px" class="actions">
+          <button id="btnSaveProfile">บันทึกโปรไฟล์</button>
+          <button class="ghost" onclick="renderOpenings()">กลับ</button>
+        </div>
+      </div>`;
+    mainArea.innerHTML = html;
+
+    // preview existing
+    const preview = document.getElementById('pf_preview');
+    if(s.portfolio && s.portfolio.length>0){
+      preview.innerHTML = '';
+      s.portfolio.forEach(f=>{
+        const el = document.createElement('div');
+        el.innerHTML = `<div style="margin-bottom:6px"><b>${escapeHtml(f.name)}</b> — <a href="${f.dataUrl}" download="${escapeHtml(f.name)}">ดาวน์โหลด</a></div>`;
+        preview.appendChild(el);
+      });
+    }
+
+    document.getElementById('pf_files').onchange = async (e)=>{
+      const files = Array.from(e.target.files || []);
+      if(files.length===0) return;
+      for(const f of files){
+        const dataUrl = await fileToDataUrl(f);
+        s.portfolio.push({name:f.name,dataUrl});
+      }
+      dbSave(db);
+      alert('อัปโหลดไฟล์เรียบร้อย (บันทึกไว้ในโปรไฟล์)');
+      renderProfile();
+
+    };
+
+    document.getElementById('btnSaveProfile').onclick = ()=>{
+      s.personal.firstName = document.getElementById('pf_firstName').value.trim();
+      s.personal.lastName = document.getElementById('pf_lastName').value.trim();
+      s.personal.dob = document.getElementById('pf_dob').value.trim();
+      s.personal.age = document.getElementById('pf_age').value.trim();
+      s.personal.gender = document.getElementById('pf_gender').value.trim();
+      s.personal.nationality = document.getElementById('pf_nationality').value.trim();
+      s.personal.address = {
+        house: document.getElementById('pf_house').value.trim(),
+        building: document.getElementById('pf_building').value.trim(),
+        soi: document.getElementById('pf_soi').value.trim(),
+        road: document.getElementById('pf_road').value.trim(),
+        moo: document.getElementById('pf_moo').value.trim(),
+        subdistrict: document.getElementById('pf_subdistrict').value.trim(),
+        district: document.getElementById('pf_district').value.trim(),
+        province: document.getElementById('pf_province').value.trim(),
+        postcode: document.getElementById('pf_postcode').value.trim()
+      };
+      s.personal.phone = document.getElementById('pf_phone').value.trim();
+      s.personal.email = document.getElementById('pf_email').value.trim();
+      dbSave(db);
+      alert('บันทึกโปรไฟล์เรียบร้อย');
+      renderOpenings();
+    };
+
+  } else if(u.role==='company'){
+    const c = currentCompany();
+    if(!c) return alert('ไม่พบโปรไฟล์บริษัท');
+    let html = `<h3>โปรไฟล์บริษัท</h3>
+      <div class="card">
+        <div class="form-row"><input id="pf_companyName" placeholder="ชื่อบริษัท" value="${escapeHtml(c.companyName||'')}"></div>
+        <div class="form-row"><input id="pf_contactPerson" placeholder="ชื่อผู้ติดต่อ" value="${escapeHtml(c.contactPerson||'')}"></div>
+        <div class="form-row"><input id="pf_companyPhone" placeholder="โทรศัพท์" value="${escapeHtml(c.phone||'')}"></div>
+        <div style="margin-top:12px" class="actions">
+          <button id="btnSaveCompany">บันทึกโปรไฟล์</button>
+          <button class="ghost" onclick="renderOpenings()">กลับ</button>
+        </div>
+      </div>`;
+    mainArea.innerHTML = html;
+    document.getElementById('btnSaveCompany').onclick = ()=>{
+      c.companyName = document.getElementById('pf_companyName').value.trim();
+      c.contactPerson = document.getElementById('pf_contactPerson').value.trim();
+      c.phone = document.getElementById('pf_companyPhone').value.trim();
+      // mark company as pending approval (if not yet approved)
+      if(!c.approved){
+        alert('บันทึกเรียบร้อย โปรไฟล์จะรอแอดมินอนุมัติ');
+      } else {
+        alert('บันทึกเรียบร้อย');
+      }
+      dbSave(db);
+      renderCompanyPostings();
+    };
+  } else {
+    alert('หน้าโปรไฟล์ไม่รองรับ role นี้');
+  }
+}
+
+/* ======= Applicants listing (admin quick / company quick) ======= */
+function renderApplicants(){
+  const u = currentUser();
+  if(!u) return requireLogin();
+  if(u.role==='company'){
+    renderCompanyPostings();
+    return;
+  }
+  if(u.role==='admin'){
+    // show all applications
+    let html = '<h3>Applications (ทั้งหมด)</h3>';
+    if(db.applications.length===0) html += '<div class="small muted">ยังไม่มีการสมัคร</div>';
+    db.applications.forEach(a=>{
+      const p = db.postings.find(x=>x.id===a.postingId) || {};
+      const stud = db.students.find(s=>s.id===a.studentId) || {};
+      html += `<div class="company-card">
+        <div style="display:flex;justify-content:space-between">
+          <div><b>${escapeHtml(p.title||'(ไม่ระบุ)')}</b> — <span class="small muted">${escapeHtml((stud.personal && stud.personal.firstName) ? stud.personal.firstName+' '+stud.personal.lastName : '(นักศึกษาไม่ระบุ)')}</span></div>
+          <div class="small muted">${a.status}</div>
+        </div>
+        <div style="margin-top:8px" class="actions"><button onclick="viewApplicantDetail(${a.id})">ดู</button></div>
+      </div>`;
+    });
+    mainArea.innerHTML = html;
+    return;
+  }
+  // student -> show my applications
+  if(u.role==='student'){
+    const s = currentStudent();
+    let html = `<h3>ใบสมัครของฉัน</h3>`;
+    const myApps = db.applications.filter(a=>a.studentId===s.id);
+    if(myApps.length===0) html += '<div class="small muted">คุณยังไม่ได้สมัครงาน</div>';
+    myApps.forEach(a=>{
+      const p = db.postings.find(x=>x.id===a.postingId) || {};
+      const comp = db.companies.find(c=>c.id===p.companyId) || {};
+      html += `<div class="company-card">
+        <div style="display:flex;justify-content:space-between">
+          <div><b>${escapeHtml(p.title||'(ไม่ระบุ)')}</b><div class="small muted">${escapeHtml(comp.companyName||'')}</div></div>
+          <div class="small muted">${a.status}</div>
+        </div>
+        <div style="margin-top:8px" class="actions"><button onclick="viewMyApplication(${a.id})">ดู</button></div>
+      </div>`;
+    });
+    mainArea.innerHTML = html;
+  }
+}
+
+function viewMyApplication(applicationId){
+  const a = db.applications.find(x=>x.id===applicationId);
+  if(!a) return alert('ไม่พบ');
+  const p = db.postings.find(x=>x.id===a.postingId) || {};
+  const comp = db.companies.find(c=>c.id===p.companyId) || {};
+  let html = `<h3>ใบสมัครของฉัน</h3>
+  <div class="card">
+    <div style="font-weight:600">${escapeHtml(p.title||'')}</div>
+    <div class="small muted">${escapeHtml(comp.companyName||'')}</div>
+    <div style="margin-top:8px"><b>สถานะ:</b> ${a.status}</div>
+    <div style="margin-top:8px"><b>ข้อมูลที่ส่ง:</b></div>
+    <pre class="small muted">${escapeHtml(JSON.stringify(a.answers, null, 2))}</pre>
+    <div style="margin-top:8px"><b>Portfolio ที่แนบ:</b></div>
+    <div id="myAppPortfolio" class="file-preview muted"></div>
+    <div style="margin-top:12px" class="actions"><button class="ghost" onclick="renderApplicants()">กลับ</button></div>
+  </div>`;
+  mainArea.innerHTML = html;
+  const area = document.getElementById('myAppPortfolio');
+  if(a.portfolio && a.portfolio.length>0){
+    area.innerHTML = '';
+    a.portfolio.forEach(f=>{
+      const isImage = f.dataUrl.startsWith('data:image');
+      const div = document.createElement('div');
+      if(isImage){
+        div.innerHTML = `<div style="margin-bottom:8px"><b>${escapeHtml(f.name)}</b><br><img src="${f.dataUrl}" style="max-width:200px;border:1px solid #eee;padding:6px;border-radius:6px"></div>`;
+      } else {
+        div.innerHTML = `<div style="margin-bottom:8px"><b>${escapeHtml(f.name)}</b> — <a href="${f.dataUrl}" download="${escapeHtml(f.name)}">ดาวน์โหลด</a></div>`;
+      }
+      area.appendChild(div);
+    });
+  } else area.innerHTML = '<div class="small muted">ไม่มีไฟล์</div>';
+}
+
+/* ======= Utilities ======= */
+function requireLogin(msg){
+  alert(msg || 'ต้องล็อกอินเป็นนักศึกษา/บริษัทเพื่อใช้งานฟีเจอร์นี้');
+}
+
+function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+/* init */
+renderApp();
+</script>
+</body>
+</html>                                                                                                                                                                                   
